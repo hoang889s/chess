@@ -10,7 +10,22 @@ This is a small Python chess engine prototype. The repository currently contains
 - `core/board.py` — board representation, move generation, legality checks, castling, promotion, undo/redo state, Zobrist hashing, and attack detection.
 - `core/minimax.py` — AI search over generated legal moves using alpha-beta minimax, quiescence search, move ordering, killer/history heuristics, late move reductions, null-move pruning, and a transposition table.
 
+The backend/engine code is Python-only. The frontend is a separate React JavaScript application under `frontend/chess_ui`.
+
 There is no README, test suite, lint config, formatter config, or executable entrypoint in the repository.
+
+## Frontend overview
+
+The frontend app lives in `frontend/chess_ui` and uses:
+
+- React 19 with JavaScript (`.jsx`), not TypeScript.
+- Vite for development, build, preview, and React plugin setup.
+- ESLint with the React hooks and React Refresh plugins.
+- `src/main.jsx` as the React entrypoint.
+- `src/App.jsx` as the root component.
+- Public assets in `frontend/chess_ui/public`.
+
+When changing frontend code, work from `frontend/chess_ui` and keep changes consistent with plain JavaScript React conventions. Do not introduce TypeScript unless the project is explicitly migrated.
 
 ## Common commands
 
@@ -31,6 +46,22 @@ print(len(b.generate_all_legal_moves(b.turn)))
 ai = Minimax(depth=2)
 print(ai.find_best_move(b, b.turn))
 PY
+```
+
+From `frontend/chess_ui`, use the React/Vite scripts:
+
+```bash
+# Start the Vite dev server
+npm run dev
+
+# Build the React app for production
+npm run build
+
+# Lint the frontend
+npm run lint
+
+# Preview the production build locally
+npm run preview
 ```
 
 There is currently no configured way to run a single test because no tests exist. If tests are added later, prefer the project’s test runner once one is configured; otherwise use `python -m pytest path/to/test_file.py::test_name` for pytest-style tests.
