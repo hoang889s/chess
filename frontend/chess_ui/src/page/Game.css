@@ -93,6 +93,42 @@
   pointer-events: none;
 }
 
+.game-board__piece {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.game-piece {
+  width: 90%;
+  height: 90%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
+  transition: transform 150ms ease, filter 150ms ease;
+}
+
+.game-piece--white {
+  color: #fffdf8;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35)) drop-shadow(0 0 2px rgba(255, 255, 255, 0.4));
+}
+
+.game-piece--black {
+  color: #1a140f;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+}
+
+.game-board__square:has(.game-piece:hover) .game-piece,
+.game-piece:hover {
+  transform: scale(1.05);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3)) drop-shadow(0 0 4px currentColor);
+  z-index: 1;
+}
+
 .game-side-panel {
   padding: clamp(16px, 2.4vw, 28px);
   border: 5px solid rgba(45, 27, 15, 0.78);
