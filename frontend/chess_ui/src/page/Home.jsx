@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import './Home.css'
 
 const socialLinks = [
@@ -31,14 +32,69 @@ const socialLinks = [
 const linkmenu = '/icons/menu.svg';
 const linkrook = '/icons/logo.svg';
 const linkpawn = '/icons/pawn.svg';
+
+const menuItems = [
+    {
+        label: 'Chơi ngay',
+        action: 'play',
+    },
+    {
+        label: 'Giải đố',
+        action: 'puzzle',
+    },
+]
+
+const MainMenu = ({ id, isOpen, items, onSelect, onClose }) => {
+    if (!isOpen) {
+        return null
+    }
+
+    return (
+        <>
+            <button className="home-menu__backdrop" type="button" aria-label="Đóng menu" onClick={onClose} />
+            <nav className="home-menu" id={id} aria-label="Menu chính">
+                <div className="home-menu__items">
+                    {items.map((item) => (
+                        <button className="home-menu__item" key={item.action} type="button" onClick={() => onSelect(item.action)}>
+                            {item.label}
+                        </button>
+                    ))}
+                </div>
+            </nav>
+        </>
+    )
+}
+
 const Home = () => {
+    const [isMenuOpen, setIsMenuOpen] = useState(false)
+
+    const navigateToGame = () => {
+        window.history.pushState({}, '', '/page/Game.jsx')
+        window.dispatchEvent(new (window.PopStateEvent || Event)('popstate'))
+    }
+
+    const handleMenuAction = (action) => {
+        setIsMenuOpen(false)
+
+        if (action === 'play') {
+            navigateToGame()
+        }
+    }
+
     return (
         <main className="home-page">
             <div className="home-page__grain" aria-hidden="true" />
 
             <header className="home-nav">
-                <button className="home-nav__menu" type="button" aria-label="Mở menu">
-                    <img src={linkmenu} width={24} height={24} />
+                <button
+                    className="home-nav__menu"
+                    type="button"
+                    aria-expanded={isMenuOpen}
+                    aria-controls="home-menu"
+                    aria-label="Mở menu"
+                    onClick={() => setIsMenuOpen((value) => !value)}
+                >
+                    <img src={linkmenu} width={24} height={24} alt="" />
                 </button>
 
                 <div className="home-nav__actions">
@@ -51,6 +107,14 @@ const Home = () => {
                     </span>
                 </div>
             </header>
+
+            <MainMenu
+                id="home-menu"
+                isOpen={isMenuOpen}
+                items={menuItems}
+                onSelect={handleMenuAction}
+                onClose={() => setIsMenuOpen(false)}
+            />
 
             <section className="home-hero" aria-labelledby="home-title">
                 <div className="home-hero__content">
@@ -69,7 +133,7 @@ const Home = () => {
                         <span className="home-hero__connect-label">
                             kết nối với người chơi khác
                         </span>
-                        <button className="home-hero__primary-button" type="button">
+                        <button className="home-hero__primary-button" type="button" onClick={navigateToGame}>
                             Chơi ngay
                         </button>
                     </div>

@@ -10,7 +10,7 @@
     radial-gradient(circle at 18% 22%, rgba(255, 232, 170, 0.42), transparent 28%),
     radial-gradient(circle at 82% 18%, rgba(79, 47, 25, 0.22), transparent 30%),
     linear-gradient(135deg, #7da19b 0%, #5f887f 48%, #4f6f68 100%);
-  font-family: "Google Sans Flex", sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 
 .home-page::before {
@@ -45,6 +45,59 @@
     radial-gradient(circle at 12% 30%, rgba(83, 45, 23, 0.22) 0 1px, transparent 1px),
     radial-gradient(circle at 70% 64%, rgba(255, 244, 205, 0.24) 0 1px, transparent 1px);
   background-size: 26px 26px, 34px 34px;
+}
+
+.home-menu__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  border: 0;
+  background: rgba(0, 0, 0, 0.05);
+  cursor: default;
+}
+
+.home-menu {
+  position: fixed;
+  top: 76px;
+  left: clamp(22px, 4vw, 56px);
+  z-index: 5;
+  width: min(220px, calc(100vw - 44px));
+  padding: 10px;
+  border: 3px solid rgba(45, 27, 15, 0.76);
+  border-radius: 24px;
+  background: rgba(125, 161, 155, 0.94);
+  box-shadow:
+    0 18px 44px rgba(31, 21, 12, 0.22),
+    inset 0 0 0 2px rgba(255, 246, 214, 0.28);
+}
+
+.home-menu__items {
+  display: grid;
+  gap: 10px;
+}
+
+.home-menu__item {
+  width: 100%;
+  padding: 13px 16px;
+  border: 2px solid rgba(45, 27, 15, 0.62);
+  border-radius: 16px;
+  color: #3c2414;
+  background: #f6df9c;
+  box-shadow: 0 6px 0 rgba(156, 107, 50, 0.72);
+  font: 800 16px/1 "Montserrat", sans-serif;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+}
+
+.home-menu__item:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.04);
+}
+
+.home-menu__item:active {
+  transform: translateY(2px);
+  box-shadow: 0 3px 0 rgba(156, 107, 50, 0.72);
 }
 
 .home-nav,
@@ -95,7 +148,7 @@
   color: #2d1b0f;
   background: #f6df9c;
   box-shadow: 0 8px 22px rgba(43, 28, 16, 0.16);
-  font: 700 15px/1 Georgia, 'Times New Roman', serif;
+  font: 700 15px/1 "Montserrat", sans-serif;
   cursor: pointer;
 }
 
@@ -241,7 +294,7 @@
 .home-hero__secondary-button {
   border: 0;
   border-radius: 16px;
-  font: 800 clamp(18px, 2.6vw, 25px)/1 Georgia, 'Times New Roman', serif;
+  font: 800 clamp(18px, 2.6vw, 25px)/1 "Montserrat", sans-serif;
   cursor: pointer;
   transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
 }
@@ -477,7 +530,7 @@
   border-radius: 16px;
   color: #3c2414;
   background: rgba(255, 239, 190, 0.78);
-  font: 800 16px/1 Georgia, 'Times New Roman', serif;
+  font: 800 16px/1 "Montserrat", sans-serif;
   text-decoration: none;
   box-shadow: 0 8px 20px rgba(43, 28, 16, 0.14);
   transition: transform 180ms ease, background 180ms ease;
@@ -524,6 +577,10 @@
   .home-nav__avatar {
     width: 38px;
     height: 38px;
+  }
+
+  .home-menu {
+    top: 66px;
   }
 
   .home-hero {
