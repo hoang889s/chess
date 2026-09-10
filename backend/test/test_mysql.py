@@ -7,7 +7,7 @@ try:
         host="127.0.0.1",
         port=3306,
         user="root",
-        password="Hoang%145236",
+        password="Hoa145236",
     )
 
     print("Kết nối thành công!")

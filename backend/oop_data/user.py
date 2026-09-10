@@ -1,27 +1,30 @@
 class User:
-    def __init__(self,id,username,password,level,status,win,lost,email):
+    def __init__(self,id,username,password,email,level,role,status,win,lost,created_at,updated_at):
         self.id = id
         self.username = username
-        # hay luu y pass vi no can duoc bao mat truoc khi dua tren server
         self.password = password
+        self.email = email
         self.level = level
-        self.status = True
+        self.role = role
+        self.status = status
         self.win = win
         self.lost = lost
-        self.email = email
+        self.created_at = created_at
+        self.updated_at = updated_at
     def test_user_print(self):
-        print(f"Id người dùng: {self.id}")
-        print(f"Mật khẩu người dùng: {self.password}")
-        print(f"Trình độ: {self.level}")
-        print(f"Trạng thái: {self.status}")
-        print(f"Số trận thắng: {self.win}")
-        print(f"Số trận thua: {self.lost}")
+        print(f"ID nguoi dung: {self.id}")
+        print(f"Ten nguoi dung: {self.username}")
+        print(f"Mat khau: {self.password}")
         print(f"Email: {self.email}")
+        print(f"Cap do: {self.level}")
+        print(f"Vai tro: {self.role}")
+        print(f"Trang thai: {self.status}")
+        print(f"So tran thang: {self.win}")
+        print(f"So tran thua: {self.lost}")
+        print(f"Thoi gian tao tai khoan: {self.created_at}")
+        print(f"Thoi gian cap nhat: {self.updated_at}")
     def return_value_user(self):
-        return f"{self.id}+{self.username}+{self.password}+{self.level}+{self.status}+{self.win}+{self.lost}+{self.email}"
-
-        
-
+        return f"{self.id}+{self.username}+{self.password}+{self.email}+{self.level}+{self.role}+{self.status}+{self.win}+{self.lost}+{self.created_at}+{self.updated_at}"
         
 
 
