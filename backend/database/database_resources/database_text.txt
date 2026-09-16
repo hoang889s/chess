@@ -1,0 +1,75 @@
+CREATE TABLE IF NOT EXISTS `users` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`username` varchar(50) NOT NULL UNIQUE,
+	`password` varchar(255) NOT NULL,
+	`email` varchar(100) NOT NULL UNIQUE,
+	`level` int NOT NULL DEFAULT 1,
+	`status` boolean NOT NULL DEFAULT true,
+	`win` int NOT NULL DEFAULT 0,
+	`lost` int NOT NULL DEFAULT 0,
+	`created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	`updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (`id`)
+);
+CREATE TABLE IF NOT EXISTS `rooms` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`room_code` varchar(20) NOT NULL UNIQUE,
+	`owner_id` int NOT NULL,
+	`game_id` int,
+	`lock` boolean NOT NULL DEFAULT false,
+	`created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	`updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (`id`)
+);
+CREATE TABLE IF NOT EXISTS `games` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`white_player_id` int NOT NULL,
+	`black_player_id` int,
+	`fen` varchar(100) NOT NULL,
+	`pgn` text,
+	`start_time` datetime,
+	`end_time` datetime,
+	`created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (`id`)
+);
+CREATE TABLE IF NOT EXISTS `room_players` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`room_id` int NOT NULL,
+	`user_id` int NOT NULL,
+	`joined_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	`left_at` datetime,
+	PRIMARY KEY (`id`),
+	CONSTRAINT `uq_room_player` UNIQUE (room_id, user_id)
+);
+CREATE TABLE IF NOT EXISTS `room_viewers` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`room_id` int NOT NULL,
+	`user_id` int NOT NULL,
+	`joined_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	`left_at` datetime,
+	PRIMARY KEY (`id`),
+	CONSTRAINT `uq_room_viewer` UNIQUE (room_id, user_id)
+);
+CREATE TABLE IF NOT EXISTS `moves` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`game_id` int NOT NULL,
+	`player_id` int,
+	`move_number` int NOT NULL,
+	`move` varchar(10) NOT NULL,
+	`san` varchar(20) NOT NULL,
+	`fen` varchar(100) NOT NULL,
+	`created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (`id`)
+);
+ALTER TABLE `rooms` ADD CONSTRAINT `fk_rooms_owner` FOREIGN KEY (owner_id) REFERENCES users (id);
+ALTER TABLE `rooms` ADD CONSTRAINT `fk_rooms_game` FOREIGN KEY (game_id) REFERENCES games (id);
+ALTER TABLE `games` ADD CONSTRAINT `fk_games_white_player` FOREIGN KEY (white_player_id) REFERENCES users (id);
+ALTER TABLE `games` ADD CONSTRAINT `fk_games_black_player` FOREIGN KEY (black_player_id) REFERENCES users (id);
+ALTER TABLE `room_players` ADD CONSTRAINT `fk_room_players_room` FOREIGN KEY (room_id) REFERENCES rooms (id);
+ALTER TABLE `room_players` ADD CONSTRAINT `fk_room_players_user` FOREIGN KEY (user_id) REFERENCES users (id);
+ALTER TABLE `room_viewers` ADD CONSTRAINT `fk_room_viewers_room` FOREIGN KEY (room_id) REFERENCES rooms (id);
+ALTER TABLE `room_viewers` ADD CONSTRAINT `fk_room_viewers_user` FOREIGN KEY (user_id) REFERENCES users (id);
+ALTER TABLE `moves` ADD CONSTRAINT `fk_moves_game` FOREIGN KEY (game_id) REFERENCES games (id);
+ALTER TABLE `moves` ADD CONSTRAINT `fk_moves_player` FOREIGN KEY (player_id) REFERENCES users (id);
+CREATE UNIQUE INDEX `uq_room_player` USING BTREE ON `room_players` (`room_id`, `user_id`);
+CREATE UNIQUE INDEX `uq_room_viewer` USING BTREE ON `room_viewers` (`room_id`, `user_id`);
