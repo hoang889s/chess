@@ -101,6 +101,7 @@ const Home = () => {
                     <button className="home-nav__login" type="button">
                         Đăng nhập
                     </button>
+                    <button className="home-nav__register">Đăng ký</button>
                     <span className="home-nav__avatar" aria-hidden="true">
                         <img src={linkpawn} width={24} height={24} />
 

@@ -1,0 +1,86 @@
+
+
+Đừng làm Google OAuth ngay. Làm từng tầng:
+
+Bước 1 — User model
+
+users
+
+hoàn chỉnh và password hashing.
+
+Bước 2 — Register
+
+POST /api/auth/register
+
+Bước 3 — Login
+
+POST /api/auth/login
+
+Bước 4 — JWT
+
+Access Token
+Refresh Token
+
+Bước 5 — Auth Middleware
+
+Authorization: Bearer JWT
+        ↓
+verify
+        ↓
+user_id
+
+Bước 6 — /me
+
+GET /api/auth/me
+
+Bước 7 — Logout
+
+Bước 8 — Google OAuth
+
+Google
+ ↓
+email
+ ↓
+MySQL users
+ ↓
+JWT
+
+Bước 9 — kết nối Authentication với game
+
+JWT user_id
+     ↓
+room_players
+     ↓
+games
+     ↓
+moves
+
+Như vậy sau khi hoàn thành, hệ thống của bạn sẽ có luồng hoàn chỉnh:
+
+                 ┌───────────────┐
+                 │ React Client  │
+                 └───────┬───────┘
+                         │
+             ┌───────────┼───────────┐
+             ▼           ▼           ▼
+          Register      Login     Google
+             │           │           │
+             └───────────┼───────────┘
+                         ▼
+                   Flask Auth
+                         │
+                  ┌──────┴──────┐
+                  ▼             ▼
+               MySQL           JWT
+                  │             │
+                  └──────┬──────┘
+                         ▼
+                 Authenticated User
+                         │
+              ┌──────────┼──────────┐
+              ▼          ▼          ▼
+            Rooms       Games      Moves
+
+Có thể làm hoàn toàn với MySQL hiện tại của bạn. Thậm chí cấu trúc users → room_players → games → moves bạn đang thiết kế đã khá phù hợp để tích hợp authentication.
+
+Nếu triển khai cho project hiện tại, tôi sẽ ưu tiên làm register → login → JWT → /me → refresh/logout → Google OAuth, và viết theo đúng cấu trúc Flask hiện tại của bạn thay vì tạo một project mới.

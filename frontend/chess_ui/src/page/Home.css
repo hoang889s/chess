@@ -151,8 +151,19 @@
   font: 700 15px/1 "Montserrat", sans-serif;
   cursor: pointer;
 }
+.home-nav__register {
+  border: 2px solid rgba(58, 35, 19, 0.55);
+  border-radius: 999px;
+  padding: 10px 18px;
+  color: #2d1b0f;
+  background: #f6df9c;
+  box-shadow: 0 8px 22px rgba(43, 28, 16, 0.16);
+  font: 700 15px/1 "Montserrat", sans-serif;
+  cursor: pointer;
+}
 
 .home-nav__login:hover,
+.home-nav__register:hover,
 .home-hero__primary-button:hover,
 .home-hero__secondary-button:hover {
   transform: translateY(-2px);
