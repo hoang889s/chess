@@ -1,0 +1,7 @@
+# dang request mau cua register
+{
+    "username": "nguyenvana",
+    "email": "nguyenvana@gmail.com",
+    "password": "12345678"
+}
+#
