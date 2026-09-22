@@ -1,13 +1,20 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from flask import Flask
-from connect import Connect
-from create_db import Create_database
-from create_all_table import DatabaseTableCreator
-from config import Config
-from extensions import db
+from database.connect import Connect
+from database.create_db import Create_database
+from database.create_all_table import DatabaseTableCreator
+from database.config import Config
+from database.extensions import db
+from routes.auth import auth_bp
+
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = Config.SQLALCHEMY_DATABASE_URI
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = Config.SQLALCHEMY_TRACK_MODIFICATIONS
 db.init_app(app)
+app.register_blueprint(auth_bp)
 if __name__ == "__main__":
     connect = None
     # tao ket noi voi database
@@ -21,4 +28,8 @@ if __name__ == "__main__":
     # tao ra table 
     table_creator = DatabaseTableCreator(app)
     table_creator.create_all_tables()
-
+    app.run(
+        host="0.0.0.0",
+        port=5000,
+        debug=True
+    )

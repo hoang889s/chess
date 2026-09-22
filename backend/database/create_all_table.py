@@ -1,14 +1,14 @@
 from flask import Flask
 
-from extensions import db
+from .extensions import db
 
 # Import tất cả models
-import create_table.create_table_games 
-import create_table.create_table_moves
-import create_table.create_table_rooms
-import create_table.create_table_room_players
-import create_table.create_table_users
-import create_table.create_table_views
+from .create_table import create_table_games
+from .create_table import create_table_moves
+from .create_table import create_table_rooms
+from .create_table import create_table_room_players
+from .create_table import create_table_users
+from .create_table import create_table_views
 
 
 class DatabaseTableCreator:

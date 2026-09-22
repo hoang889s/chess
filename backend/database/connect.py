@@ -1,5 +1,5 @@
 import pymysql
-from config import Config
+from .config import Config
 
 class Connect:
     def __init__(self,conn):

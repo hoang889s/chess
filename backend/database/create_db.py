@@ -1,5 +1,5 @@
 # tao ra database khi chua co ma co roi thi khong tao nua
-from config import Config
+from .config import Config
 from sqlalchemy import create_engine, text
 from urllib.parse import quote_plus
 # phải chuyển về dạng endcode để không hiểu sai ký pải chính xác là dạng mysql+pymysql://root:abc%40123@localhost:3306 ví dụ như thế nó sẽ không hiểu mật khẩu
