@@ -1,11 +1,12 @@
 from flask import Blueprint, request, jsonify
-from werkzeug.security import generate_password_hash
+from werkzeug.security import (generate_password_hash,check_password_hash)
 from database.extensions import db
 from database.create_table.create_table_users import User as Users
 from utils.validator import (validate_username, validate_email, validate_password)
 auth_bp = Blueprint(
     "auth", __name__, url_prefix="/api/auth"
 )
+# register
 @auth_bp.route("/register", methods=["POST"])
 def register():
     data = request.get_json(silent=True)
@@ -105,4 +106,70 @@ def register():
 
         }
     }),201
+# login
+@auth_bp.route("/login", methods=["POST"])
+def login():
+    # lay du lieu request
+    data = request.get_json(silent=True)
+    if not data:
+        return jsonify({
+            "success":False,
+            "message":"Request body không hợp lệ",
+
+        }),400
+    email = data.get("email","").strip().lower()
+    password = data.get("password", "")
+    # kiem tra du lieu
+    if not email:
+        return jsonify({
+            "success":False,
+            "message":"Email không được để trống"
+        }),400
+    if not password:
+        return jsonify({
+            "success":False,
+            "message": "Password không được để trống"
+        })
+    # validate du lieu
+    if not validate_email(email):
+        return jsonify({
+            "success": False, 
+            "message": "Email không hợp lệ"
+        }),400
+    # tim user theo mail
+    user = Users.query.filter_by(
+        email = email
+    ).first()
+    # tranh lo thong tin tai khoan
+    if not user:
+        return jsonify({
+            "success": False, 
+            "message": "Email hoặc password không chính xác"
+        }),401
+    # kiem tra mat khau
+    if not check_password_hash(user.password_hash,password):
+        return jsonify({
+            "success": False, 
+            "message": "Email hoặc password không chính xác"
+        }),401
+    # kiem tra tai khoan
+    if not user.status:
+        return jsonify({
+            "success": False, 
+            "message": "Tài khoản đã bị khóa"
+        }),403
+    # dang nhap thanh cong
+    return jsonify({
+        "success": True, 
+        "message": "Đăng nhập thành công",
+        "data":{
+            "id": user.id, 
+            "username": user.username, 
+            "email": user.email, 
+            "level": user.level, 
+            "status": user.status, 
+            "win": user.win, 
+            "lost": user.lost
+        }
+    }),200
 
