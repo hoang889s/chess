@@ -7,13 +7,14 @@ from database.connect import Connect
 from database.create_db import Create_database
 from database.create_all_table import DatabaseTableCreator
 from database.config import Config
-from database.extensions import db
+from database.extensions import db,jwt
 from routes.auth import auth_bp
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = Config.SQLALCHEMY_DATABASE_URI
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = Config.SQLALCHEMY_TRACK_MODIFICATIONS
 db.init_app(app)
+jwt.init_app(app)
 app.register_blueprint(auth_bp)
 if __name__ == "__main__":
     connect = None

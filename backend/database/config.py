@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 from sqlalchemy import URL
+from datetime import timedelta                                                                                                                                                          
 load_dotenv()
 class Config:
     MYSQL_HOST=os.getenv("MYSQL_HOST")
@@ -12,8 +13,10 @@ class Config:
         drivername="mysql+pymysql",
         username=MYSQL_USER,
         password=MYSQL_PASSWORD,
-        host=MYSQL_HOST,
+        host=MYSQL_HOST,                                                                                                                                                                                                                                                                                                                
         port=MYSQL_PORT,
         database=MYSQL_DATABASE
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)                                                                                                                                                                                                                                                                                   
