@@ -3,7 +3,8 @@ from werkzeug.security import (generate_password_hash,check_password_hash)
 from database.extensions import db
 from database.create_table.create_table_users import User as Users
 from utils.validator import (validate_username, validate_email, validate_password)
-from flask_jwt_extended import (create_access_token,jwt_required,get_jwt_identity)
+from flask_jwt_extended import (create_access_token,jwt_required,get_jwt_identity,get_jwt)
+from utils.jwt import revoked_token
 auth_bp = Blueprint(
     "auth", __name__, url_prefix="/api/auth"
 )
@@ -229,4 +230,13 @@ def get_current_user():
         }
     }),200
 
-
+# logout
+@auth_bp.route("/logout",methods=["POST"])
+@jwt_required()
+def logout():
+    revoked_token()
+    return jsonify({
+        "success":True,
+        "message":"Đăng xuất thành công"
+    }),200
+    
