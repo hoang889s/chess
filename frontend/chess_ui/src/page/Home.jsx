@@ -72,7 +72,17 @@ const Home = () => {
         window.history.pushState({}, '', '/page/Game.jsx')
         window.dispatchEvent(new (window.PopStateEvent || Event)('popstate'))
     }
-
+    const navigateTo = (page)=>{
+        window.history.pushState({}, '', `/${page}`)
+        window.dispatchEvent(new (window.PopStateEvent || Event)('popstate'))
+    }
+    const handleLoginClick = () => {
+        navigateTo('page/Login.jsx')
+    }
+    
+    const handleRegisterClick = () => {
+        navigateTo('page/Signup.jsx')
+    }
     const handleMenuAction = (action) => {
         setIsMenuOpen(false)
 
@@ -98,10 +108,12 @@ const Home = () => {
                 </button>
 
                 <div className="home-nav__actions">
-                    <button className="home-nav__login" type="button">
+                    <button className="home-nav__login" type="button" onClick={handleLoginClick}>
                         Đăng nhập
                     </button>
-                    <button className="home-nav__register">Đăng ký</button>
+                    <button className="home-nav__register" onClick={handleRegisterClick}>
+                        Đăng ký
+                    </button>
                     <span className="home-nav__avatar" aria-hidden="true">
                         <img src={linkpawn} width={24} height={24} />
 
