@@ -1,0 +1,575 @@
+/* ===== LOGIN PAGE ===== */
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap');
+
+/* ===== Color Tokens ===== */
+:root {
+  --color-primary: #76ABAE;
+  --color-dark: #303841;
+  --color-darkest: #1F2933;
+  --color-light: #F8F5EC;
+  --color-white: #FFFFFF;
+  --color-accent: #E04A14;
+  --color-text: #111827;
+}
+
+/* ===== Trang nền ===== */
+.login-page {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #76ABAE;
+  font-family: 'Source Sans Pro', 'Montserrat', sans-serif;
+  padding: 24px;
+  box-sizing: border-box;
+  position: relative;
+  overflow-y: auto;
+}
+
+/* ===== Chessboard Pattern ===== */
+.login-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.06) 25%,
+      transparent 25%
+    ),
+    linear-gradient(
+      -45deg,
+      rgba(255, 255, 255, 0.06) 25%,
+      transparent 25%
+    );
+  background-size: 64px 64px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ===== Grain overlay ===== */
+.login-page__grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.12;
+  background-image:
+    linear-gradient(rgba(255, 246, 214, 0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 246, 214, 0.15) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: linear-gradient(to bottom, black, transparent 90%);
+}
+
+/* ===== Decorative Chess Pieces ===== */
+.login-decor {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.login-decor__piece {
+  position: absolute;
+  font-size: 48px;
+  opacity: 0.08;
+  color: var(--color-darkest);
+  line-height: 1;
+  user-select: none;
+}
+
+.login-decor__piece--top-left {
+  top: 8%;
+  left: 6%;
+}
+
+.login-decor__piece--top-right {
+  top: 12%;
+  right: 6%;
+}
+
+.login-decor__piece--bottom-left {
+  bottom: 8%;
+  left: 8%;
+}
+
+.login-decor__piece--bottom-right {
+  bottom: 12%;
+  right: 6%;
+}
+
+/* ===== Login Card ===== */
+.login-card {
+  width: 400px;
+  max-width: 100%;
+  padding: 36px 32px 32px;
+  background: var(--color-light);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+  z-index: 1;
+  box-shadow:
+    0 20px 50px rgba(31, 41, 51, 0.25),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+  animation: loginCardIn 500ms ease-out;
+}
+
+/* ===== Page Entrance Animation ===== */
+@keyframes loginCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== Logo Animation ===== */
+@keyframes chessLogoIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== Nút quay lại ===== */
+.login-back {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 150ms ease, transform 150ms ease;
+  z-index: 2;
+  color: var(--color-dark);
+}
+
+.login-back:hover {
+  background: rgba(0, 0, 0, 0.06);
+  transform: translateX(-2px);
+}
+
+.login-back .arrow-left {
+  width: 20px;
+  height: 20px;
+  stroke: var(--color-dark);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ===== Brand / Chess Logo ===== */
+.login-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 4px;
+  animation: chessLogoIn 450ms ease-out;
+}
+
+.login-brand__icon {
+  font-size: 36px;
+  line-height: 1;
+  color: var(--color-dark);
+  opacity: 0.85;
+}
+
+.login-brand__text {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: var(--color-dark);
+  opacity: 0.65;
+}
+
+/* ===== Header ===== */
+.login-header {
+  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.login-welcome {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.3;
+  color: var(--color-dark);
+  opacity: 0.75;
+}
+
+.login-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-dark);
+  letter-spacing: 0px;
+}
+
+/* ===== Form ===== */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 4px;
+}
+
+/* Form group */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+}
+
+/* Label */
+.form-label {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-dark);
+}
+
+/* Input wrapper */
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+/* Input icon */
+.input-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.input-icon svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  fill: none;
+}
+
+/* Input field */
+.form-input {
+  width: 100%;
+  height: 48px;
+  padding: 12px 14px 12px 46px;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  border-radius: 8px;
+  background: var(--color-white);
+  color: var(--color-text);
+  font-size: 15px;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.form-input::placeholder {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow:
+    0 0 0 3px rgba(118, 171, 174, 0.2),
+    0 4px 12px rgba(31, 41, 51, 0.08);
+}
+
+/* Password toggle button */
+.password-toggle {
+  position: absolute;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 4px;
+  color: rgba(0, 0, 0, 0.4);
+  transition: color 150ms ease, background-color 150ms ease;
+}
+
+.password-toggle:hover {
+  color: var(--color-dark);
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.password-toggle:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.password-toggle svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  fill: none;
+}
+
+/* ===== Login Options (Remember + Forgot) ===== */
+.login-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-dark);
+  cursor: pointer;
+  user-select: none;
+}
+
+.remember-me input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.forgot-password {
+  border: none;
+  background: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-primary);
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  transition: text-decoration-color 150ms ease;
+}
+
+.forgot-password:hover {
+  text-decoration-color: var(--color-accent);
+}
+
+.forgot-password:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ===== Login Button ===== */
+.login-button {
+  width: 100%;
+  height: 48px;
+  margin-top: 4px;
+  padding: 0;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--color-white);
+  background: var(--color-dark);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 150ms ease, transform 100ms ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-button:hover:not(:disabled) {
+  background: #3E4852;
+  transform: translateY(-1px);
+}
+
+.login-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.login-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ===== Error Message ===== */
+.login-error {
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  background: rgba(220, 38, 38, 0.08);
+  color: #B91C1C;
+  text-align: center;
+}
+
+/* ===== Divider "Hoặc" ===== */
+.login-or {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0;
+  color: var(--color-dark);
+  font-size: 14px;
+  opacity: 0.6;
+}
+
+.login-or::before,
+.login-or::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+/* ===== Google Login Button ===== */
+.google-login-button {
+  width: 100%;
+  height: 46px;
+  padding: 0 16px 0 14px;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--color-dark);
+  background: var(--color-white);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: background-color 150ms ease, transform 100ms ease, box-shadow 150ms ease;
+}
+
+.google-login-button:hover:not(:disabled) {
+  background: #F4F4F4;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.google-login-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.google-login-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.google-login-button svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* ===== Switch sang trang đăng ký ===== */
+.login-switch {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--color-dark);
+}
+
+.login-switch__link {
+  border: none;
+  background: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1B425B;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  transition: text-decoration-color 150ms ease, color 150ms ease;
+}
+
+.login-switch__link:hover {
+  text-decoration-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.login-switch__link:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ===== Reduced Motion ===== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ===== Responsive Design ===== */
+@media (max-width: 680px) {
+  .login-page {
+    padding: 16px;
+    overflow-y: auto;
+  }
+
+  .login-card {
+    width: calc(100vw - 32px);
+    max-width: calc(100vw - 32px);
+    padding: 28px 20px 24px;
+    border-radius: 14px;
+  }
+
+  .login-decor__piece {
+    font-size: 32px;
+  }
+}
+
+@media (max-width: 380px) {
+  .login-card {
+    padding: 24px 16px 20px;
+  }
+
+  .login-options {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
