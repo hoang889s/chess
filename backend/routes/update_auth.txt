@@ -1,0 +1,3 @@
+bo sung api moi
+GET /api/auth/verify-email/<token>
+bo sung model user

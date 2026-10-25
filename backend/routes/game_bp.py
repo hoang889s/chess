@@ -1,6 +1,4 @@
 from flask import Blueprint, request, jsonify
-from database.extensions import db
-from utils.validator import validate_username, validate_email, validate_password
 
 game_bp = Blueprint(
     "game",
@@ -8,34 +6,52 @@ game_bp = Blueprint(
     url_prefix="/api/game"
 )
 
-# Create a room
+# Tạo phòng chơi
 @game_bp.route("/rooms", methods=["POST"])
 def create_room():
     data = request.get_json(silent=True)
     if not data:
-        return jsonify({"success": False, "message": "Request body không hợp lệ"}), 400
-    
+        return jsonify({
+            "success": False,
+            "message": "Request body không hợp lệ"
+        }), 400
+
     username = data.get("username", "").strip()
     if not username:
-        return jsonify({"success": False, "message": "Username không được để trống"}), 400
-    
-    # Create room logic would go here
-    return jsonify({"success": True, "message": "Room created successfully"}), 201
+        return jsonify({
+            "success": False,
+            "message": "Username không được để trống"
+        }), 400
 
-# Join a room
+    # TODO: logic tạo phòng (lưu vào DB, tạo room_code...)
+    return jsonify({
+        "success": True,
+        "message": "Tạo phòng thành công"
+    }), 201
+
+# Tham gia phòng
 @game_bp.route("/rooms/<int:room_id>", methods=["POST"])
 def join_room(room_id):
-    # Implementation would go here
-    return jsonify({"success": True, "message": f"Joined room {room_id}"}), 200
+    # TODO: logic tham gia phòng
+    return jsonify({
+        "success": True,
+        "message": f"Đã tham gia phòng {room_id}"
+    }), 200
 
-# Make a move
+# Gửi nước đi
 @game_bp.route("/moves/<int:room_id>", methods=["POST"])
 def make_move(room_id):
-    # Implementation would go here
-    return jsonify({"success": True, "message": f"Move made in room {room_id}"}), 200
+    # TODO: logic xử lý nước đi
+    return jsonify({
+        "success": True,
+        "message": f"Nước đi đã được gửi vào phòng {room_id}"
+    }), 200
 
-# Get game state
+# Lấy trạng thái ván chơi
 @game_bp.route("/state/<int:room_id>", methods=["GET"])
 def get_state(room_id):
-    # Implementation would go here
-    return jsonify({"success": True, "message": f"State of room {room_id}"}), 200
+    # TODO: logic trả về trạng thái ván chơi
+    return jsonify({
+        "success": True,
+        "message": f"Trạng thái phòng {room_id}"
+    }), 200

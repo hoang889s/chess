@@ -1,3 +1,4 @@
+from datetime import datetime
 from ..extensions import db
 
 
@@ -28,6 +29,12 @@ class User(db.Model):
         unique=True
     )
 
+    role = db.Column(
+        db.String(20),
+        nullable=False,
+        default="user"
+    )
+
     level = db.Column(
         db.Integer,
         nullable=False,
@@ -54,10 +61,21 @@ class User(db.Model):
 
     created_at = db.Column(
         db.DateTime,
-        nullable=False
+        nullable=False,
+        default=datetime.utcnow
     )
 
     updated_at = db.Column(
         db.DateTime,
-        nullable=False
+        nullable=False,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow
     )
+    is_verfied = db.Column(
+        db.Boolean,
+        nullable=False,
+        default=False
+    )
+
+    def __repr__(self):
+        return f"<User {self.username}>"

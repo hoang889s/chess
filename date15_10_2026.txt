@@ -1,0 +1,78 @@
+# Phân tích công việc còn lại để hoàn thiện chức năng Đăng ký / Đăng nhập và đăng nhập bằng Google
++
++## 1. Tình trạng hiện tại
++
++### Backend (Flask)
++- **API auth** đã được triển khai trong `/backend/routes/auth.py`:
++  - `POST /api/auth/register` – đăng ký email/mật khẩu (validation, hash password, tạo user).
++  - `POST /api/auth/login` – đăng nhập email/mật khẩu (kiem tra email, password, trả về JWT access token).
++  - `GET /api/auth/me` – lấy thông tin user hiện tại (yêu cầu JWT).
++  - `POST /api/auth/logout` – thêm JWT vào blocklist (revoked_tokens set).
++- **Mô hình User** (`/backend/database/create_table/create_table_users.py`) có các trường: id, username, email, password (hash), role, level, status, win/lost, timestamps.
++- **JWT** được cấu hình trong `/backend/database/app.py`:
++  - `JWT_SECRET_KEY`, `JWT_ACCESS_TOKEN_EXPIRES` từ `Config`.
++  - `token_in_blocklist_loader` sử dụng `utils/jwt.is_token_revokes`.
++- **Middleware role-based** (`utils/decorators.role_required`) để bảo vệ routes admin.
++- **Frontend** có hai trang:
++  - `/frontend/chess_ui/src/page/Login.jsx` – form đăng nhập (email, password) + nút "Tiếp tục với Google" (placeholder).
++  - `/frontend/chess_ui/src/page/Signup.jsx` – form đăng ký (username, email, password) + nút "Đăng ký bằng Google" (placeholder).
++- Các form hiện chỉ `console.log` và không thực sự gọi API hoặc xử lý Google OAuth.
++
++### Công việc đã làm
++- Validation trước khi gửi request (trên frontend) giàu và khớp với quy tắc backend.
++- Mã hóa password bằng `werkzeug.security.generate_password_hash`.
++- Trả về JSON với cấu trúc `{ success, message, data }`.
++- Kiểm tra trạng thái tài khoản (`status`) và 역할 qua JWT claims.
++- Có cơ chế thu hồi token (blocklist) đơn giản (bo đen trong bộ nhớ).
++
++## 2. Công việc còn lại để hoàn thiện đăng ký / đăng nhập email/password
++
++| Mô tả | Chi tiết | Ghi chú |
++|-------|----------|---------|
++| **Xác thực email sau đăng ký** | Gửi email chứa link kích hoạt (token tạm thời) trước khi cho phép login. | Cần cấu hình SMTP/mail service, tạo route `/api/auth/verify-email/<token>` và lưu token trong bảng mới hoặc trong user (is_verified). |
++| **Quên mật khẩu / Reset password** | API gửi link reset tới email, cho phép đặt password mới. | Cần tạo bảng reset_tokens, route `/api/auth/forgot-password`, `/api/auth/reset-password/<token>`. |
++| **Refresh token** | Access token có thời gian sống ngắn (ví dụ 15‑30 phút); cung cấp refresh token để lấy access token mới mà không phải đăng nhập lại. | Cần thêm `JWT_REFRESH_TOKEN_EXPIRES`, endpoint `/api/auth/refresh` (jwt_required(refresh=True)), lưu refresh token trong blocklist hoặc database. |
++| **Khóa tài khoản sau nhiều lần đăng nhập thất bại** | Ghi lại số lần sai, tạm khóa sau ngưỡng nhất định. | Thêm trường `failed_attempts`, `locked_until` vào User model. |
++| **Thông tin trả về mở rộng** | Khi đăng ký/login, có thể trả về thêm trường `is_verified`, `role`, `access_token` (refresh token nếu có). | Đồng nhất giữa backend và frontend. |
++| **Logging & Monitoring** | Ghi log các sự kiện auth (register, login success/fail, token revoked). | Sử dụng Python logging hoặc integrate với ELK. |
++| **Unit / Integration tests** | Viết test cho các endpoint auth (pytest hoặc Flask testing). | Đảm bảo chất lượng khi thay đổi. |
++
++> **Kết luận**: Chức năng đăng ký/đăng nhập email/password hiện hoạt động ở mức cơ bản. Để xem là "hoàn thiện" trong một sản phẩm thực tế, cần bổ sung các tính năng trên (tùy thuộc vào yêu cầu bảo mật và UX).
++
++## 3. Công việc cần thực hiện để hỗ trợ Đăng nhập bằng Google (OAuth 2.0)
++
++### 3.1 Backend
++| Bước | Mô tả | File / Tham khảo |
++|------|-------|-------------------|
++| **Cấu hình Google OAuth Client ID & Secret** | Lấy từ Google Cloud Console → Credentials → OAuth 2.0 Client IDs (Ứng dụng web). Lưu trong biến môi trường (ví dụ `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`). | Thêm vào `.env` (hoặc config class) và đọc trong `app.py` hoặc `config.py`. |
++| **Thư viện hỗ trợ** | Cài `flask-dance` hoặc `authlib` để xử lý luồng OAuth. | Cập nhat `requirements.txt`. |
++| **Tạo route bắt đầu luồng** | `GET /api/auth/google/login` → chuyển hướng tới trang đồng ý của Google. | Thêm vào `auth_bp`. |
++| **Callback route** | `GET /api/auth/google/callback` – Google sẽ trả về `code`, đổi lấy `access_token` và `id_token`, lấy thông tin user (email, name, picture). | Xác thực token, tìm hoặc tạo user trong DB (dựa trên email). Nếu email chưa verified, tự động đánh dấu verified. Tạo JWT access token (có thể kèm refresh token) và trả về cho frontend (hoặc chuyển hướng lại frontend với token). |
++| **Lưu trữ thông tin Google** | Nếu muốn cho phép liên kết tài khoản Google với tài khoản email/password hiện có, cần lưu `google_id` trong bảng User (unique). | Thêm cột `google_id` (String, nullable, unique). |
++| **Middleware bảo vệ** | Đảm bảo callback chỉ được gọi từ Google (kiểm tra `state` param để ngăn CSRF). | Tạo `state` ngẫu nhiên lưu trong session hoặc cookie trước khi redirect. |
++| **Xử lý lỗi** | Trường hợp user từ chối, token hết hạn, email không khớp, v.v. | Trả về JSON lỗi hoặc redirect tới trang lỗi frontend. |
++
++### 3.2 Frontend
++| Bước | Mô tả | File |
++|------|-------|------|
++| **Thay đổi nút "Tiếp tục với Google"** | Thay `handleGoogleLogin` trong `Login.jsx` bằng việc mở popup hoặc chuyển hướng tới `/api/auth/google/login` (hoặc gọi một endpoint backend mà sau đó redirect). | `/frontend/chess_ui/src/page/Login.jsx` |
++| **Tương tự cho Signup** | Thay `handleGoogleSignup` trong `Signup.jsx`. | `/frontend/chess_ui/src/page/Signup.jsx` |
++| **Xử lý phản hồi từ backend** | Sau khi callback thành công, backend có thể trả về JWT (trong JSON) hoặc redirect tới frontend với token trong URL hash. Frontend cần lưu token (localStorage/sessionStorage) và điều hướng tới trang chính (ví dụ `/game`). | Cập nhật cả hai file sau khi thực hiện gọi API hoặc xử lý redirect. |
++| **UI loading & error** | Hiển thị loading khi đang chờ callback, hiển thị thông báo lỗi nếu có. | Sử dụng state `loading`, `error` đã có. |
++| **Thêm nút "Đăng nhập bằng Google" vào trang login nếu chưa có** | Đã có nút, chỉ cần kết nối logic. | — |
++| **Thêm nút "Đăng ký bằng Google" vào trang signup nếu chưa có** | Đã có nút, chỉ cần kết nối logic. | — |
++
++### 3.3 Các bước triển khai gợi ý
++1. **Thêm biến môi trường** (ví dụ `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`) vào file `.env` (tạo mới) và tải qua `python-dotenv` hoặc `Config` class.
++2. **Cài thư viện OAuth** (`pip install authlib` hoặc `flask-dance`).
++3. **Mở rộng User model** → thêm `google_id` (unique, nullable) và có thể `avatar_url`.
++4. **Tạo hai route mới** trong `auth_bp`: `/api/auth/google/login` và `/api/auth/google/callback`.
++5. **Trong callback**:
++   - Mã hoá state, xác thực.
++   - Dùng `authlib` để đổi `code` lấy token.
++   - Giải mã `id_token` (hoặc gọi `userinfo` endpoint) để lấy `email`, `name`, `picture`.
++   - Tìm user bằng `email`; nếu không tồn tại → tạo mới (đặt mật khẩu ngẫu nhiên hoặc để `password` null và đánh dấu `is_google=True`).
++   - Nếu tồn tại nhưng chưa liên kết Google → cập nhật `google_id`.
++   - Tạo JWT access token (có thể kèm refresh token) và trả về JSON `{ success, data: { access_token, user: {...} }}` hoặc redirect frontend với token trong `#access_token=...`.
++6. **Frontend**:
++   - Thay hàm `handleGoogleLogin`/`handleGoogleSignup` bằng `window.location.href = '/api/auth/google/login'` (hoặc gọi API proxy nếu muốn xử lý token qua JSON).
