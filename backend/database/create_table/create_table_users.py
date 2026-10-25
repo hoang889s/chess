@@ -71,7 +71,7 @@ class User(db.Model):
         default=datetime.utcnow,
         onupdate=datetime.utcnow
     )
-    is_verfied = db.Column(
+    is_verified = db.Column(
         db.Boolean,
         nullable=False,
         default=False
