@@ -1,13 +1,26 @@
-from flask import Blueprint, request, jsonify
+import secrets
+import hashlib
+from datetime import datetime, timedelta
+from flask import Blueprint, current_app, request, jsonify
 from werkzeug.security import (generate_password_hash,check_password_hash)
 from database.extensions import db
 from database.create_table.create_table_users import User as Users
+from database.create_table.create_table_email_verification_tokens import (EmailVerificationToken)
 from utils.validator import (validate_username, validate_email, validate_password)
 from flask_jwt_extended import (create_access_token,jwt_required,get_jwt_identity,get_jwt)
 from utils.jwt import revoked_token
 auth_bp = Blueprint(
     "auth", __name__, url_prefix="/api/auth"
 )
+# khoi tao token
+def generate_email_verification_token():
+    # tao token goc 32
+    token = secrets.token_urlsafe(32)
+    # bam token truoc khi luu vao database
+    toeken_hash = hashlib.sha256(token.encode("utf-8")).hexdigest()
+    # het han sau 30 phut
+    expires_at = datetime.utcnow() + timedelta(minutes=30)
+
 # register
 @auth_bp.route("/register", methods=["POST"])
 def register():
@@ -85,18 +98,32 @@ def register():
         lost = 0
     )
     try:
+        # 6 them user vao session 
         db.session.add(user)
+        # them nhung khong commit 
+        db.session.flush()
+        token , token_hash,expires_at = (generate_email_verification_token())
+        # tao ban ghi
+        verification_record = EmailVerificationToken(user_id=user.id, token_hash=token_hash, expires_at=expires_at)
+        db.session.add(verification_record)
+        # commit
         db.session.commit()
-
     except Exception :
         db.session.rollback()
+        current_app.logger.exception(
+        "Lỗi khi đăng ký tài khoản"
+        )
         return jsonify({
-            "success":False,
+            "success": False,
             "message": "Đăng ký thất bại"
+
         }),500
     return jsonify({
         "success":True,
-        "message": "Đăng ký thành công",
+        "message":(
+            "Đăng ký thành công. "
+            "Vui lòng xác thực email để kích hoạt tài khoản."
+        ),
         "data":{
             "id": user.id,
             "username": user.username,
@@ -105,9 +132,8 @@ def register():
             "status": user.status,
             "win": user.win,
             "lost": user.lost
-
         }
-    }),201
+    })
 
 # login
 @auth_bp.route("/login", methods=["POST"])
