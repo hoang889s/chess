@@ -54,7 +54,7 @@ def register():
         return jsonify({
             "success":False,
             "message": "Password phải có ít nhất 8 ký tự"
-        })
+        }), 409
     # 3 kiem tra ton tai
     existing_user = Users.query.filter_by(
         username=username
@@ -63,7 +63,7 @@ def register():
         return jsonify({
             "success":False,
             "message": "Username đã tồn tại"
-        }),409
+        }), 409
     existing_email = Users.query.filter_by(
         email=email
     ).first()
@@ -78,7 +78,7 @@ def register():
     user = Users(
         username=username,
         email=email,
-        password_hash=password_hash,
+        password=password_hash,
         level=1,
         status=True,
         win = 0,
@@ -159,7 +159,7 @@ def login():
 
     # 5. Kiểm tra password
     if not check_password_hash(
-        user.password_hash,
+        user.password,
         password
     ):
         return jsonify({
@@ -205,8 +205,14 @@ def login():
 @auth_bp.route("/me" ,methods=["GET"])
 @jwt_required()
 def get_current_user():
-    user_id = get_jwt_identity()
-    user = Users.query.get(user_id)
+    try:
+        user_id = get_jwt_identity()
+        user = Users.query.get(user_id)
+    except Exception:
+        return jsonify({
+            "success": False,
+            "message": "Token không hợp lệ"
+        }), 401
     if not user:
         return jsonify({
             "success":False,
