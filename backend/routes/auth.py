@@ -17,9 +17,10 @@ def generate_email_verification_token():
     # tao token goc 32
     token = secrets.token_urlsafe(32)
     # bam token truoc khi luu vao database
-    toeken_hash = hashlib.sha256(token.encode("utf-8")).hexdigest()
+    token_hash = hashlib.sha256(token.encode("utf-8")).hexdigest()
     # het han sau 30 phut
     expires_at = datetime.utcnow() + timedelta(minutes=30)
+    return token, token_hash, expires_at
 
 # register
 @auth_bp.route("/register", methods=["POST"])
@@ -134,12 +135,76 @@ def register():
             "lost": user.lost
         }
     })
-
+# verify email
+@auth_bp.route( "/verify-email/<string:token>", methods=["GET"])
+def verify_email(token):
+    try:
+        # bam token
+        token_hash = hashlib.sha256(token.encode("utf-8")).hexdigest()
+        # tim token trong database
+        verification_record = EmailVerificationToken.query.filter_by(token_hash=token_hash).first()
+        # kiem tra token ton tai
+        if verification_record is None:
+            return jsonify({
+                "success": False,
+                "message": "Token xác thực không hợp lệ"
+                }),400
+        # kiem tra duoc su dung chua
+        if verification_record.used_at is not None:
+            return jsonify({
+                "success": False,
+                "message": "Liên kết xác thực đã được sử dụng."
+            }), 400
+        # kiem tra token het han
+        if datetime.utcnow() >= verification_record.expires_at:
+            return jsonify({
+                "success": False,
+                "message": (
+                    "Liên kết xác thực đã hết hạn. "
+                    "Vui lòng yêu cầu gửi lại email."
+                    )
+            }),400
+        # tim user tu user_id
+        user = Users.query.get(verification_record.user_id)
+        
+        if user is None:
+            return jsonify({
+                "success": False,
+                "message": "Người dùng không tồn tại."
+            }),404
+        # kiem tra user da xac thuc chua
+        if user.is_verified:
+            return jsonify({
+                "success": False,
+                "message": "Tài khoản đã được xác thực."
+            }),400
+        # danh dau
+        user.is_verified = True
+        # danh dau token
+        verification_record.used_at = datetime.utcnow()
+        # luu thay doi
+        db.session.commit()
+        return jsonify({
+            "success": True,
+            "message": (
+                "Xác thực email thành công. "
+                "Bạn có thể đăng nhập."
+            )
+        }),200
+    except Exception:
+        db.session.rollback()
+        current_app.logger.exception(
+            "Lỗi khi xác thực email"
+        )
+        return jsonify({
+            "success": False,
+            "message": "Xác thực email thất bại"
+        })
 # login
 @auth_bp.route("/login", methods=["POST"])
 def login():
 
-    # 1. Lấy dữ liệu request
+    #  Lấy dữ liệu request
     data = request.get_json(silent=True)
 
     if not data:
@@ -151,7 +216,7 @@ def login():
     email = data.get("email", "").strip().lower()
     password = data.get("password", "")
 
-    # 2. Kiểm tra dữ liệu bắt buộc
+    #  Kiểm tra dữ liệu bắt buộc
     if not email:
         return jsonify({
             "success": False,
@@ -164,14 +229,14 @@ def login():
             "message": "Password không được để trống"
         }), 400
 
-    # 3. Validate email
+    #  Validate email
     if not validate_email(email):
         return jsonify({
             "success": False,
             "message": "Email không hợp lệ"
         }), 400
 
-    # 4. Tìm user theo email
+    #  Tìm user theo email
     user = Users.query.filter_by(
         email=email
     ).first()
@@ -183,7 +248,7 @@ def login():
             "message": "Email hoặc password không chính xác"
         }), 401
 
-    # 5. Kiểm tra password
+    #  Kiểm tra password
     if not check_password_hash(
         user.password,
         password
@@ -192,15 +257,24 @@ def login():
             "success": False,
             "message": "Email hoặc password không chính xác"
         }), 401
+    # Kiểm tra xác thực email
+    if not user.is_verified:
+        return jsonify({
+            "success": False,
+            "message": (
+                "Email chưa được xác thực. "
+                "Vui lòng kiểm tra email để kích hoạt tài khoản."
+            )
 
-    # 6. Kiểm tra trạng thái tài khoản
+        }),403
+    #  Kiểm tra trạng thái tài khoản
     if not user.status:
         return jsonify({
             "success": False,
             "message": "Tài khoản đã bị khóa"
         }), 403
 
-    # 7. Tạo JWT Access Token
+    #  Tạo JWT Access Token
     access_token = create_access_token(
         identity=str(user.id),
         additional_claims={
