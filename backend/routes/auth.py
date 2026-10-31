@@ -7,7 +7,7 @@ from database.extensions import db
 from database.create_table.create_table_users import User as Users
 from database.create_table.create_table_email_verification_tokens import (EmailVerificationToken)
 from utils.validator import (validate_username, validate_email, validate_password)
-from flask_jwt_extended import (create_access_token,jwt_required,get_jwt_identity,get_jwt)
+from flask_jwt_extended import (create_access_token,jwt_required,get_jwt_identity,get_jwt,create_refresh_token)
 from utils.jwt import revoked_token
 auth_bp = Blueprint(
     "auth", __name__, url_prefix="/api/auth"
