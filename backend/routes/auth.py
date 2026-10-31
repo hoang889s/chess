@@ -13,7 +13,7 @@ auth_bp = Blueprint(
     "auth", __name__, url_prefix="/api/auth"
 )
 # khoi tao token
-def generate_email_verification_token():
+def generate_email_verification_token(): 
     # tao token goc 32
     token = secrets.token_urlsafe(32)
     # bam token truoc khi luu vao database
@@ -282,6 +282,10 @@ def login():
             "role": user.role
         }
     )
+    # Tạo Refresh Token
+    refresh_token = create_refresh_token(
+        identity=str(user.id)
+        )
 
     # 8. Đăng nhập thành công
     return jsonify({
@@ -289,6 +293,7 @@ def login():
         "message": "Đăng nhập thành công",
         "data": {
             "access_token": access_token,
+            "refresh_token": refresh_token,
             "user": {
                 "id": user.id,
                 "username": user.username,
@@ -345,4 +350,52 @@ def logout():
         "success":True,
         "message":"Đăng xuất thành công"
     }),200
+# Refresh Access Token
+@auth_bp.route("/refresh", methods=["POST"])
+@jwt_required(refresh=True)
+def refresh():
+    try:
+        user_id = get_jwt_identity()
+        user = db.session.get(Users,int(user_id))
+        if user is None:
+            return jsonify({
+                "success": False,
+                "message": "Người dùng không tồn tại"
+            }),404
+        if not user.status:
+            return jsonify({
+                "success": False,
+                "message": "Tài khoản đã bị khóa"
+            }),403
+        if not user.is_verified:
+            return jsonify({
+                "success": False,
+                "message": "Email chưa được xác thực"
+            }),403
+        access_token = create_access_token(identity=str(user.id),additional_claims={
+             "username": user.username,
+             "role": user.role
+        })
+        return jsonify({
+            "success": True,
+            "message": "Làm mới Access Token thành công",
+            "data": {
+                 "access_token": access_token
+            }
+        }),200
+    except (TypeError, ValueError):
+        return jsonify({
+            "success": False,
+            "message": "ID người dùng trong token không hợp lệ"
+        }),401
+    except Exception:
+        current_app.logger.exception(
+             "Lỗi khi làm mới Access Token"
+        )
+        return jsonify({
+            "success": False,
+            "message": "Không thể làm mới Access Token"
+        }),500
+
+        
     
